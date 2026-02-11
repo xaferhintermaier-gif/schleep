@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SLEEP SYSTEM</h1>
+            <div class="header-stats">
+                <div class="stat">
+                    <span class="stat-label">Sleep Debt</span>
+                    <span class="stat-value" id="totalDebt">0h</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Avg Quality</span>
+                    <span class="stat-value" id="avgQuality">--</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Social Jetlag</span>
+                    <span class="stat-value" id="socialJetlag">0m</span>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="daily">Daily Entry</button>
+            <button class="tab" data-tab="weekly">Weekly Review</button>
+            <button class="tab" data-tab="data">Data Export</button>
+        </nav>
+
+        <!-- DAILY ENTRY TAB -->
+        <section id="daily" class="tab-content active">
+            <div class="form-section">
+                <h2>Sleep Timing</h2>
+                <div class="form-row">
+                    <label>
+                        Date
+                        <input type="date" id="entryDate" required>
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label>
+                        Bedtime (yesterday)
+                        <input type="time" id="bedtime" required>
+                    </label>
+                    <label>
+                        Wake Time
+                        <input type="time" id="waketime" required>
+                    </label>
+                </div>
+                <div class="info-box" id="sleepInfo"></div>
+            </div>
+
+            <div class="form-section">
+                <h2>Caffeine</h2>
+                <div id="caffeineEntries"></div>
+                <button class="btn-add" onclick="app.addCaffeineEntry()">+ Add Caffeine</button>
+            </div>
+
+            <div class="form-section">
+                <h2>Alcohol</h2>
+                <div id="alcoholEntries"></div>
+                <button class="btn-add" onclick="app.addAlcoholEntry()">+ Add Alcohol</button>
+            </div>
+
+            <div class="form-section">
+                <h2>Meals</h2>
+                <div id="mealEntries"></div>
+                <button class="btn-add" onclick="app.addMealEntry()">+ Add Meal</button>
+            </div>
+
+            <div class="form-section">
+                <h2>Exercise</h2>
+                <div id="exerciseEntries"></div>
+                <button class="btn-add" onclick="app.addExerciseEntry()">+ Add Exercise</button>
+            </div>
+
+            <div class="form-section">
+                <h2>Screen Time</h2>
+                <div id="screenEntries"></div>
+                <button class="btn-add" onclick="app.addScreenEntry()">+ Add Screen Session</button>
+            </div>
+
+            <div class="form-section">
+                <h2>Environment</h2>
+                <div class="form-row">
+                    <label>
+                        Temperature (°F)
+                        <input type="number" id="envTemp" min="50" max="80" value="68">
+                    </label>
+                    <label>
+                        Light Level (lux)
+                        <input type="number" id="envLight" min="0" max="1000" value="0">
+                    </label>
+                </div>
+                <div class="form-row">
+                    <label>
+                        Noise Level (dB)
+                        <input type="number" id="envNoise" min="0" max="100" value="30">
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="envBedroomOnly" checked>
+                        Bedroom only (no other activities)
+                    </label>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn-primary" onclick="app.calculateAndSave()">Calculate & Save</button>
+                <button class="btn-secondary" onclick="app.loadEntry()">Load Entry</button>
+            </div>
+
+            <div id="resultSection" class="result-section" style="display:none;">
+                <h2>Sleep Quality Score: <span id="qualityScore">--</span></h2>
+                <div id="violations" class="violations"></div>
+                <div id="breakdown" class="breakdown"></div>
+            </div>
+        </section>
+
+        <!-- WEEKLY REVIEW TAB -->
+        <section id="weekly" class="tab-content">
+            <div class="weekly-header">
+                <h2>Weekly Analysis</h2>
+                <button class="btn-secondary" onclick="app.generateWeeklyReport()">Refresh Analysis</button>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Sleep Debt Trend</h3>
+                    <div class="metric-value" id="weeklyDebtTrend">--</div>
+                    <div class="metric-detail" id="weeklyDebtDetail"></div>
+                </div>
+                <div class="metric-card">
+                    <h3>Social Jetlag</h3>
+                    <div class="metric-value" id="weeklySocialJetlag">--</div>
+                    <div class="metric-detail" id="weeklySocialJetlagDetail"></div>
+                </div>
+                <div class="metric-card">
+                    <h3>Average Quality</h3>
+                    <div class="metric-value" id="weeklyAvgQuality">--</div>
+                    <div class="metric-detail" id="weeklyQualityDetail"></div>
+                </div>
+                <div class="metric-card">
+                    <h3>Consistency Score</h3>
+                    <div class="metric-value" id="weeklyConsistency">--</div>
+                    <div class="metric-detail" id="weeklyConsistencyDetail"></div>
+                </div>
+            </div>
+
+            <div class="violations-summary">
+                <h3>Violation Frequency</h3>
+                <div id="weeklyViolations"></div>
+            </div>
+
+            <div class="adjustments">
+                <h3>System Adjustments</h3>
+                <div id="weeklyAdjustments"></div>
+            </div>
+        </section>
+
+        <!-- DATA EXPORT TAB -->
+        <section id="data" class="tab-content">
+            <div class="data-section">
+                <h2>Data Export</h2>
+                <div class="export-controls">
+                    <button class="btn-primary" onclick="app.exportJSON()">Download JSON Data</button>
+                    <button class="btn-primary" onclick="app.exportWeeklyReport()">Download Weekly Report (TXT)</button>
+                    <button class="btn-danger" onclick="app.resetSystem()">Reset All Data</button>
+                </div>
+                <div class="data-preview">
+                    <h3>Current Data Summary</h3>
+                    <pre id="dataSummary"></pre>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
